@@ -6,10 +6,9 @@ from pathlib import Path
 from honeybee.model import Model
 from honeybee_vtk.model import Model as VTKModel
 from ladybug.epw import EPW
-from honeybee.model import Model as HBModel
 
 
-@st.cache(hash_funcs={HBModel: lambda model: model.identifier})
+@st.cache(hash_funcs={Model: lambda model: model.identifier})
 def generate_vtkjs(here: Path, hb_model: Model) -> Path:
     directory = os.path.join(here.as_posix(), 'data', st.session_state.user_id)
     hbjson_path = hb_model.to_hbjson(hb_model.identifier, directory)
