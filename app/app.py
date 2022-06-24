@@ -66,8 +66,8 @@ def get_inputs(host: str, target_folder: str):
         sketchup.get_model(target_folder)
 
     # add an option to preview the model in 3D
-    # if st.session_state.hb_model and st.checkbox(label='Preview Model', value=False):
-    #     shared.generate_vtk_model(target_folder, st.session_state.hb_model)
+    if st.session_state.hb_model and st.checkbox(label='Preview Model', value=False):
+        shared.generate_vtk_model(target_folder, st.session_state.hb_model)
 
     # get the input EPW and DDY files
     shared.get_weather_file(target_folder)
@@ -105,6 +105,7 @@ def run_simulation(target_folder: str):
     epw_path = st.session_state.epw_path
     ddy_path = st.session_state.ddy_path
     north = st.session_state.north
+
     if not hb_model or not epw_path or not ddy_path:
         return
 
@@ -176,15 +177,11 @@ def data_to_load_intensity(data_colls, floor_area, data_type, cop=1, mults=None)
     return MonthlyCollection(total_head, total_vals, range(12))
 
 
-def create_charts():
+def create_charts(model, heat_cop, cool_cop, sql_path, ip_units):
     """Create the load charts from the results of the simulation."""
     # get the session variables for the results
-    model = st.session_state.hb_model
-    heat_cop = st.session_state.heat_cop
-    cool_cop = st.session_state.cool_cop
-    sql_path = st.session_state.sql_path
-    ip_units = st.session_state.ip_units
-    if not sql_path or not st.session_state.rebuild_viz:
+
+    if not sql_path:
         return
 
     # load up the floor area, get the model units, and the room multipliers
@@ -286,7 +283,8 @@ def main(platform):
     run_simulation(target_folder)
 
     # create the resulting charts
-    create_charts()
+    create_charts(st.session_state.hb_model, st.session_state.heat_cop,
+                  st.session_state.cool_cop, st.session_state.sql_path, st.session_state.ip_units)
 
 
 if __name__ == '__main__':
