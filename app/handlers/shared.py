@@ -1,19 +1,20 @@
 """A module to collect shared logic."""
+
 import streamlit as st
 import os
 from pathlib import Path
 from honeybee.model import Model
 from honeybee_vtk.model import Model as VTKModel
-from pollination_streamlit_viewer import viewer
 from ladybug.epw import EPW
+from honeybee.model import Model as HBModel
 
 
-def generate_vtk_model(here: Path, hb_model: Model) -> str:
+@st.cache(hash_funcs={HBModel: lambda model: model.identifier})
+def generate_vtkjs(here: Path, hb_model: Model) -> Path:
     directory = os.path.join(here.as_posix(), 'data', st.session_state.user_id)
     hbjson_path = hb_model.to_hbjson(hb_model.identifier, directory)
     vtk_model = VTKModel.from_hbjson(hbjson_path)
-    vtk_path = vtk_model.to_vtkjs(folder=directory, name=hb_model.identifier)
-    viewer(content=Path(vtk_path).read_bytes(), key='vtk_preview_model')
+    return Path(vtk_model.to_vtkjs(folder=directory, name=hb_model.identifier))
 
 
 def new_weather_file():

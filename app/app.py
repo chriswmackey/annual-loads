@@ -21,7 +21,7 @@ from honeybee_energy.result.err import Err
 from honeybee_energy.run import run_idf
 from honeybee_energy.writer import energyplus_idf_version
 from honeybee_energy.config import folders as energy_folders
-
+from pollination_streamlit_viewer import viewer
 from handlers import (bootstrap, web, rhino, revit, sketchup, shared)
 
 
@@ -67,7 +67,11 @@ def get_inputs(host: str, target_folder: str):
 
     # add an option to preview the model in 3D
     if st.session_state.hb_model and st.checkbox(label='Preview Model', value=False):
-        shared.generate_vtk_model(target_folder, st.session_state.hb_model)
+        if 'vtkjs' not in st.session_state:
+            st.session_state.vtkjs = shared.generate_vtkjs(
+                target_folder, st.session_state.hb_model)
+
+        viewer(key='model_view', content=st.session_state.vtkjs.read_bytes())
 
     # get the input EPW and DDY files
     shared.get_weather_file(target_folder)
